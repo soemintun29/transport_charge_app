@@ -1,5 +1,6 @@
 import { isOsrmDistanceInvalid } from "@/lib/geo-validation";
 import { googleDrivingDistanceKm } from "@/lib/google-distance";
+import { isGoogleFallbackAllowed } from "@/lib/google-fallback-policy";
 import { tryConsumeGoogleApiSlot } from "@/lib/google-quota";
 import { logGoogleApiUsage } from "@/lib/google-usage-log";
 import {
@@ -12,10 +13,6 @@ export type RouteResult = {
   routeGeometry: LineStringGeometry | null;
   routeProvider: "osrm" | "google";
 };
-
-function googleFallbackEnabled(): boolean {
-  return process.env.GOOGLE_FALLBACK_ENABLED === "true";
-}
 
 /**
  * OSRM first; if distance invalid or OSRM fails, optionally Google Distance Matrix.
@@ -53,7 +50,8 @@ export async function getDrivingRouteWithFallback(
     routeGeometry = null;
   }
 
-  if (!googleFallbackEnabled()) {
+  const googleEnabled = await isGoogleFallbackAllowed();
+  if (!googleEnabled) {
     if (Number.isFinite(distanceKm) && distanceKm > 0) {
       return {
         distanceKm,

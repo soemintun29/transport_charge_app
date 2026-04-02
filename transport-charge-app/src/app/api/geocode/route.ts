@@ -5,6 +5,7 @@ import {
   type NominatimHit,
 } from "@/lib/geo-validation";
 import { googleGeocodeSearch } from "@/lib/google-geocode";
+import { isGoogleFallbackAllowed } from "@/lib/google-fallback-policy";
 import { tryConsumeGoogleApiSlot } from "@/lib/google-quota";
 import { logGoogleApiUsage } from "@/lib/google-usage-log";
 import {
@@ -13,10 +14,6 @@ import {
   type GeocodePayload,
 } from "./geocode-cache";
 import { searchNominatimHits } from "./nominatim";
-
-function googleFallbackEnabled(): boolean {
-  return process.env.GOOGLE_FALLBACK_ENABLED === "true";
-}
 
 function hasGoogleKey(): boolean {
   return Boolean(process.env.GOOGLE_MAPS_API_KEY?.trim());
@@ -94,11 +91,8 @@ export async function POST(request: NextRequest) {
     );
     let cacheProvider: "nominatim" | "google" = "nominatim";
 
-    if (
-      suggestions.length === 0 &&
-      googleFallbackEnabled() &&
-      hasGoogleKey()
-    ) {
+    const googleEnabled = await isGoogleFallbackAllowed();
+    if (suggestions.length === 0 && googleEnabled && hasGoogleKey()) {
       const googleReason =
         nominatimHits.length === 0
           ? "geocode_no_results"

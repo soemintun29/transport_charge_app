@@ -83,6 +83,11 @@ If **`GOOGLE_FALLBACK_ENABLED`** is on and you set **`GOOGLE_MONTHLY_LIMIT`**, y
 
 After running `06`, confirm table **`google_api_monthly_usage`** exists (Table Editor).
 
+## Admin runtime toggle (optional)
+
+Run **`07_admin_runtime_settings.sql`** to enable admin-controlled runtime settings.
+The current use is `google_fallback_enabled`, which lets admins turn Google usage on/off from the admin dashboard without redeploying.
+
 ## Troubleshooting
 
 If you see `constraint "uq_pricing_rule_active_city" does not exist`:

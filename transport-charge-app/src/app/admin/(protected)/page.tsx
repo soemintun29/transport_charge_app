@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GoogleFallbackToggleCard } from "@/components/admin/GoogleFallbackToggleCard";
 
 const cards = [
   {
@@ -43,6 +44,7 @@ export default function AdminHomePage() {
           </li>
         ))}
       </ul>
+      <GoogleFallbackToggleCard />
     </div>
   );
 }
