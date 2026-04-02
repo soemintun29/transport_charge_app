@@ -1,8 +1,15 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE, createAdminSessionValue } from "@/lib/admin-session";
+import { adminSupabaseAuthEnabled } from "@/lib/supabase-auth";
 
 export async function POST(request: NextRequest) {
+  if (adminSupabaseAuthEnabled()) {
+    return NextResponse.json(
+      { error: "Password login disabled (Supabase Auth enabled)." },
+      { status: 400 },
+    );
+  }
   try {
     const body = await request.json();
     const password = typeof body.password === "string" ? body.password : "";

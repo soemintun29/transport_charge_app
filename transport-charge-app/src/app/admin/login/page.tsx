@@ -3,9 +3,11 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,20 +17,21 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+      const supabase = createSupabaseBrowserClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Login failed");
+      if (signInError) {
+        setError(signInError.message);
         return;
       }
       router.push("/admin");
       router.refresh();
-    } catch {
-      setError("Network error");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Authentication failed";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -42,6 +45,17 @@ export default function AdminLoginPage() {
           Transport charge configuration
         </p>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <label className="block text-sm font-medium text-slate-700">
+            Email
+            <input
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#0098D1]"
+              required
+            />
+          </label>
           <label className="block text-sm font-medium text-slate-700">
             Password
             <input
