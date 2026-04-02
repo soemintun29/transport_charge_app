@@ -77,7 +77,9 @@ export default function Home() {
     let cancelled = false;
     async function loadHubs() {
       try {
-        const response = await fetch(`/api/hubs?city=${city}`);
+        const response = await fetch(`/api/hubs?city=${city}`, {
+          cache: "no-store",
+        });
         const payload = await response.json();
         if (cancelled || !response.ok) {
           if (!cancelled) setHubOptions([]);

@@ -17,7 +17,7 @@ Brand color: `#0098D1` (Midea)
 - Fee calculation API (`/api/calculate-fee`) with **OSRM route polyline** (Midea blue `#0098D1`) on the map after calculate
 - Auto-nearest hub + manual override
 - Zone resolution and nearest-1000 MMK rounding
-- **Admin** (`/admin`): hubs, zones + surcharges, city pricing, calculation logs (password session)
+- **Admin** (`/admin`): hubs, zones + surcharges, city pricing, calculation logs (Supabase Auth + email allowlist)
 
 ## Run locally
 
@@ -39,16 +39,17 @@ Important:
 
 ## Admin panel
 
-1. Set **`ADMIN_PASSWORD`** in `.env.local` (see `.env.example`).
-2. Open **`/admin/login`**, sign in, then manage **Hubs**, **Zones**, **Pricing**, and **Logs**.
-3. APIs under `/api/admin/*` require the signed **`tc_admin`** cookie (set on login).
+1. In Supabase Dashboard -> Authentication -> Users, create admin user(s).
+2. Set **`ADMIN_EMAIL_ALLOWLIST`** in `.env.local` (see `.env.example`).
+3. Open **`/admin/login`** and sign in with Supabase email/password.
+4. APIs under `/api/admin/*` require a valid Supabase auth session and allowlisted email.
 
 Calculator home links to **Admin** (login).
 
 ## Next implementation steps
 
-1. Replace password auth with **Supabase Auth** + `admin` role when you need multiple admins
-2. Deploy (Vercel + env vars); use a strong `ADMIN_PASSWORD` in production
+1. Add an explicit `admin` role table/RLS policy instead of only email allowlist
+2. Deploy (Vercel + env vars) and keep allowlist in sync with admin team emails
 3. Geocode responses are cached in Supabase **`geocode_cache`** (30 days) when `SUPABASE_SERVICE_ROLE_KEY` is set
 4. Admin **Logs** page: **Download CSV** (up to 5,000 rows, respects city filter)
 5. Optional: polygon zones, Google geocode fallback

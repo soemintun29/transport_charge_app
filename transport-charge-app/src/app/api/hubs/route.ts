@@ -55,5 +55,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ hubs: hubs ?? [] });
+  return NextResponse.json(
+    { hubs: hubs ?? [] },
+    { headers: { "Cache-Control": "no-store, max-age=0" } },
+  );
 }

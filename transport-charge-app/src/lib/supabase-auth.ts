@@ -28,10 +28,6 @@ export async function createAdminAuthServerClient() {
   });
 }
 
-export function adminSupabaseAuthEnabled(): boolean {
-  return process.env.ADMIN_SUPABASE_AUTH_ENABLED === "true";
-}
-
 export function parseAdminEmailAllowlist(): string[] {
   const raw = process.env.ADMIN_EMAIL_ALLOWLIST ?? "";
   return raw
@@ -43,7 +39,7 @@ export function parseAdminEmailAllowlist(): string[] {
 export function isAllowlistedAdminEmail(email: string | undefined): boolean {
   if (!email) return false;
   const allowlist = parseAdminEmailAllowlist();
-  if (allowlist.length === 0) return true; // if unset, allow any signed-in user (not recommended)
+  if (allowlist.length === 0) return false;
   return allowlist.includes(email.toLowerCase());
 }
 

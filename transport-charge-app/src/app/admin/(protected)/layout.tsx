@@ -1,10 +1,7 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminHeader } from "@/components/admin/AdminHeader";
-import { ADMIN_COOKIE, verifyAdminSessionValue } from "@/lib/admin-session";
 import {
-  adminSupabaseAuthEnabled,
   createAdminAuthServerClient,
   isAllowlistedAdminEmail,
 } from "@/lib/supabase-auth";
@@ -14,18 +11,10 @@ export default async function AdminProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  if (adminSupabaseAuthEnabled()) {
-    const supabase = await createAdminAuthServerClient();
-    const { data } = await supabase.auth.getUser();
-    if (!data.user || !isAllowlistedAdminEmail(data.user.email)) {
-      redirect("/admin/login");
-    }
-  } else {
-  const jar = await cookies();
-  const token = jar.get(ADMIN_COOKIE)?.value;
-  if (!verifyAdminSessionValue(token)) {
+  const supabase = await createAdminAuthServerClient();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user || !isAllowlistedAdminEmail(data.user.email)) {
     redirect("/admin/login");
-  }
   }
 
   return (

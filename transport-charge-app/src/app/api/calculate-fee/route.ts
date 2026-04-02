@@ -23,17 +23,36 @@ type HubRow = {
   lng: number;
 };
 
+function toRadians(v: number): number {
+  return (v * Math.PI) / 180;
+}
+
+function haversineKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+): number {
+  const R = 6371;
+  const dLat = toRadians(lat2 - lat1);
+  const dLng = toRadians(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function pickNearestHub(
   hubs: HubRow[],
   customerLat: number,
   customerLng: number,
 ): HubRow {
   let best = hubs[0];
-  let bestDistance = Number.MAX_SAFE_INTEGER;
+  let bestDistance = Number.POSITIVE_INFINITY;
   for (const hub of hubs) {
-    const d = Math.sqrt(
-      (customerLat - hub.lat) ** 2 + (customerLng - hub.lng) ** 2,
-    );
+    const d = haversineKm(customerLat, customerLng, hub.lat, hub.lng);
     if (d < bestDistance) {
       bestDistance = d;
       best = hub;
