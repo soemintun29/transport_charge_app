@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 import {
   MapContainer,
   Marker,
@@ -49,7 +49,7 @@ type CustomerMapProps = {
   routeLine?: [number, number][] | null;
 };
 
-export default function CustomerMap({
+function CustomerMapInner({
   city,
   markerLat,
   markerLng,
@@ -101,3 +101,8 @@ export default function CustomerMap({
     </div>
   );
 }
+
+const CustomerMap = memo(CustomerMapInner);
+CustomerMap.displayName = "CustomerMap";
+
+export default CustomerMap;

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useTransition, useState } from "react";
 import { CITY_MAP_VIEW } from "@/lib/map-cities";
 
 const CustomerMap = dynamic(() => import("@/components/CustomerMap"), {
@@ -66,6 +66,21 @@ export default function Home() {
     lng: CITY_MAP_VIEW.yangon.center[1],
   });
   const [routeLine, setRouteLine] = useState<[number, number][] | null>(null);
+  const [, startTransition] = useTransition();
+
+  const onMapPinChange = useCallback((lat: number, lng: number) => {
+    setMapPin({ lat, lng });
+  }, []);
+
+  const onCityChange = useCallback(
+    (nextCity: "yangon" | "mandalay") => {
+      // City switch rerenders map + hub data; transition keeps the select responsive.
+      startTransition(() => {
+        setCity(nextCity);
+      });
+    },
+    [startTransition],
+  );
 
   useEffect(() => {
     const v = CITY_MAP_VIEW[city];
@@ -246,7 +261,7 @@ export default function Home() {
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-brand"
                 value={city}
                 onChange={(event) =>
-                  setCity(event.target.value as "yangon" | "mandalay")
+                  onCityChange(event.target.value as "yangon" | "mandalay")
                 }
               >
                 <option value="yangon">Yangon</option>
@@ -260,7 +275,7 @@ export default function Home() {
                 required
                 value={address}
                 onChange={(event) => setAddress(event.target.value)}
-                placeholder="Type address, street, landmark or ward"
+                placeholder="Type address, street, ward/township, or landmark"
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-brand"
               />
             </label>
@@ -338,7 +353,7 @@ export default function Home() {
                 city={city}
                 markerLat={mapPin.lat}
                 markerLng={mapPin.lng}
-                onMarkerChange={(lat, lng) => setMapPin({ lat, lng })}
+                onMarkerChange={onMapPinChange}
                 routeLine={routeLine}
               />
             </div>

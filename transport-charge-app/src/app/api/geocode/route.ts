@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Address not found. Try a shorter query (street + ward), add a landmark, or use a map pin later.",
+            "Address not found. Try a shorter query (street + ward/township), add a landmark, or use a map pin later.",
         },
         { status: 404 },
       );
